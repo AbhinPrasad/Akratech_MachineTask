@@ -1,9 +1,12 @@
-import React from 'react'
+import React from "react";
+import { Card } from "./components";
 
 const App = () => {
-  return (
-    <div>App</div>
-  )
-}
+	return (
+		<>
+			<Card />
+		</>
+	);
+};
 
-export default App
+export default App;
