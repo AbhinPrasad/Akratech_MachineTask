@@ -10,21 +10,41 @@ import {
 	CardActions
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
-import image from "../assets/1292402.jpg";
 import axios from "axios";
+import db from "../db/db";
 
 const Cards = () => {
 	const [data, setData] = useState([]);
 
-	const getUserData = async () => {
+	//Get user data from the database
+	const getUsersFromDb = async () => {
+		const users = await db.users.toArray();
+		setData(users);
+	};
+
+	//adding user data from the response to database
+	const handleResponse = async (res) => {
+		const userData = res.map((user) => ({
+			name: user.name.first + " " + user.name.last,
+			image: user.picture.large
+		}));
+		await db.users.bulkPut(userData);
+
+		getUsersFromDb();
+	};
+
+	//API call
+	const fetchData = async () => {
 		await axios
 			.get("https://randomuser.me/api/?results=50")
-			.then((res) => setData(res.data.results))
+			.then((res) => {
+				handleResponse(res.data.results);
+			})
 			.catch((err) => console.log(err));
 	};
 
 	useEffect(() => {
-		getUserData();
+		fetchData();
 	}, []);
 
 	return (
@@ -43,7 +63,7 @@ const Cards = () => {
 				}}>
 				{data.map((user) => {
 					return (
-						<>
+						<Box key={user.id}>
 							<Card
 								sx={{
 									width: "200px",
@@ -54,7 +74,7 @@ const Cards = () => {
 									<CardMedia
 										component="img"
 										height="140"
-										image={user.picture.large}
+										image={user.image}
 									/>
 									<CardContent
 										sx={{
@@ -62,7 +82,7 @@ const Cards = () => {
 											justifyContent: "center"
 										}}>
 										<Typography variant="h6" component="div">
-											{user.name.first} {user.name.last}
+											{user.name}
 										</Typography>
 									</CardContent>
 								</CardActionArea>
@@ -73,7 +93,7 @@ const Cards = () => {
 									</Button>
 								</CardActions>
 							</Card>
-						</>
+						</Box>
 					);
 				})}
 			</Box>
