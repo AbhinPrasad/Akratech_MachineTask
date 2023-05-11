@@ -23,9 +23,10 @@ const Cards = () => {
 	const getUsersFromDb = async () => {
 		const users = await db.users.limit(50).toArray();
 		setData(users);
-        setLoading(false);
+		setLoading(false);
 	};
 
+	//adding user data from the response to database
 	const handleResponse = async (res) => {
 		const userData = res.map((user) => ({
 			name: user.name.first + " " + user.name.last,
@@ -65,7 +66,7 @@ const Cards = () => {
 						alignItems: "center",
 						height: "100vh"
 					}}>
-					<CircularProgress color="inherit"/>
+					<CircularProgress color="inherit" />
 				</Box>
 			) : (
 				<>
@@ -79,6 +80,7 @@ const Cards = () => {
 						<Button
 							variant="outlined"
 							sx={{ maxWidth: "120px" }}
+							onClick={fetchData}
 							startIcon={<RefreshIcon />}>
 							Refresh
 						</Button>
