@@ -10,6 +10,7 @@ import {
 	CardActions
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import db from "../db/db";
 
@@ -18,7 +19,7 @@ const Cards = () => {
 
 	//Get user data from the database
 	const getUsersFromDb = async () => {
-		const users = await db.users.toArray();
+		const users = await db.users.limit(50).toArray();
 		setData(users);
 	};
 
@@ -43,13 +44,32 @@ const Cards = () => {
 			.catch((err) => console.log(err));
 	};
 
+	const handleDelete = async (id) => {
+		await db.users.delete(id);
+		setData((prevData) => prevData.filter((user) => user.id !== id));
+	};
+
 	useEffect(() => {
 		fetchData();
 	}, []);
 
 	return (
 		<>
-			<Typography variant="h6">Showing {data.length} data</Typography>
+			<Box
+				sx={{
+					margin: "20px 0 0 30px",
+					display: "flex",
+					flexDirection: "column",
+					gap: "10px"
+				}}>
+				<Button
+					variant="outlined"
+					sx={{ maxWidth: "120px" }}
+					startIcon={<RefreshIcon />}>
+					Refresh
+				</Button>
+				<Typography variant="h6">Showing {data.length} data</Typography>
+			</Box>
 
 			<Box
 				sx={{
@@ -59,7 +79,7 @@ const Cards = () => {
 					flexWrap: "wrap",
 					justifyContent: "center",
 					gap: "20px",
-					marginTop: "50px"
+					marginTop: "30px"
 				}}>
 				{data.map((user) => {
 					return (
@@ -68,7 +88,8 @@ const Cards = () => {
 								sx={{
 									width: "200px",
 									height: "300px",
-									marginBottom: "20px"
+									marginBottom: "20px",
+									border: "1px solid #ccc"
 								}}>
 								<CardActionArea>
 									<CardMedia
@@ -88,8 +109,13 @@ const Cards = () => {
 								</CardActionArea>
 								<CardActions
 									sx={{ display: "flex", justifyContent: "end" }}>
-									<Button size="medium">
-										<DeleteIcon />
+									<Button
+										variant="contained"
+										size="small"
+										color="error"
+										endIcon={<DeleteIcon />}
+										onClick={() => handleDelete(user.id)}>
+										Delete
 									</Button>
 								</CardActions>
 							</Card>
